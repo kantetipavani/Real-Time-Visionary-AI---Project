@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visionary AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <style>
+        body { text-align: center; 
+}
+        video { 
+            display: none; /* Hide the video element */
+        }
+        canvas { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); /* Center the canvas */
+            width:100%; 
+            height: 100%; 
+            border: 2px solid white; /* Optional: Add a border to the canvas */
+        }
+ h1 {
+            font-family: 'Brush Script MT', cursive; /* Use Brush Script MT font */
+            color:red; /* Gold color for the text */
+            font-size: 3em; /* Increase font size */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow for better visibility */
+            margin-top:5px; /* Add some margin */
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time  Visionary   AI</h1>
+Real-Time Object Detection for the Visually Impaired
+Our system uses YOLO (You Only Look Once) – a cutting-edge deep learning model – to detect and recognize objects in real time from a live camera feed.
+
+Designed especially for blind and visually impaired individuals, this technology acts as “eyes” that speak. As the camera captures the surroundings, YOLO instantly identifies objects and their positions, and a built-in Text-to-Speech engine announces them out loud.
+
+With its high speed and accuracy, the system works seamlessly in daily life — whether identifying obstacles on the road, recognizing household items, or navigating through public spaces.
+<section id="about">
+    <h2>Real-Time Object Detection for the Visually Impaired</h2>
+    <p>
+        Our system uses <strong>YOLO (You Only Look Once)</strong> – a cutting-edge deep learning model – 
+        to detect and recognize objects in real time from a live camera feed.
+    </p>
+
+    <p>
+        Designed especially for <strong>blind and visually impaired individuals</strong>, this technology 
+        acts as “eyes” that speak. As the camera captures the surroundings, YOLO instantly identifies 
+        objects and their positions, and a built-in <strong>Text-to-Speech</strong> engine announces them out loud.
+    </p>
+
+    <p>
+        With its high speed and accuracy, the system works seamlessly in daily life — whether identifying 
+        obstacles on the road, recognizing household items, or navigating through public spaces.
+    </p>
+
+    <h3>How It Works:</h3>
+    <ul style="list-style: none;" >
+        <li><strong>Camera Input</strong> – Captures the real-world scene in front of the user.</li>
+        <li><strong>YOLO Detection</strong> – Processes the image to find and classify objects instantly.</li>
+        <li><strong>Audio Output</strong> – Converts object names into speech so the user can hear them in real time.</li>
+    </ul>
+
+    <h3>Key Highlights:</h3>
+    <ul style="list-style: none;">
+        <li>Fast and accurate object detection.</li>
+        <li>Audio feedback for easy understanding.</li>
+        <li>Works in real-world environments, indoors and outdoors.</li>
+        <li>Portable and adaptable for wearable devices.</li>
+    </ul>
+
+    <p>
+        Our mission is to make the world more <strong>accessible and inclusive</strong>, 
+        helping the visually impaired move independently and safely.
+    </p>
+</section>
+
+<br><br><br><br>
+    <video id="video" width="80%" height="20%" autoplay></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        async function setupCamera() {
+            const video = document.getElementById("video");
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
+        }
+
+        async function detectObjects(video, model) {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            async function detect() {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const predictions = await model.detect(video);
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.font = "18px Arial";
+                ctx.fillStyle = "red";
+
+                predictions.forEach(({ bbox: [x, y, width, height], class: label }) => {
+                    ctx.strokeStyle = "green";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x, y, width, height);
+                    ctx.fillText(label, x, y > 10 ? y - 5 : 10);
+                });
+
+                requestAnimationFrame(detect);
+            }
+
+            detect();
+        }
+
+        async function main() {
+            const video = await setupCamera();
+            const model = await cocoSsd.load();
+            detectObjects(video, model);
+        }
+
+        main();
+    </script>
+</body>
+</html>
